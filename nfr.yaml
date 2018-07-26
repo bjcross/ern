@@ -4,18 +4,38 @@
   tasks:
     - name: Update
       yum: name=* state=latest
+    
     - name: Software Groups
       yum: 
         name: "@Hardware Monitoring Utilites",
-                 "@Performance Tools",
-                 "@Development Tools",
-                 "@Network File System Client",
-                 "@Console Internet Tools",
-                 "@Networking Tools",
-                 "@System Administration Tools",
-                 "@System Management",
-                 "@Compatibility Libraries",
-                 "@Platform Development" 
+              "@Performance Tools",
+              "@Development Tools",
+              "@Network File System Client",
+              "@Console Internet Tools",
+              "@Networking Tools",  
+              "@System Administration Tools",
+              "@System Management",
+              "@Compatibility Libraries",
+              "@Platform Development" 
         state: latest
+   
     - name: Copy Hosts Files
-      
+    - name: OpenHPC
+    - name: More Packages
+    - name: Firewall
+    - name: IP Forward
+    - name: LDAP
+    - name: Create Home Directories
+    - name: Slurm & Munge
+    - name: NFS
+    - name: xrootd
+    - name: User SSH Keys
+    - name: PerfSonar
+    - name: Ganglia
+    - name: Firewall Settings
+    - name: BOINC
+ 
+- hosts: Compute
+  remote_user: root
+  tasks:
+    - name: Disable Firewall?
