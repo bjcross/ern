@@ -1,5 +1,37 @@
 #!/bin/bash
 
+#OS: Centos 7.4
+#OpenHPC recipe: 1.3.4
+#Scheduler: slurm 17.11
+#Filesystem: xrootdfs with local nfs export
+#Authz, authn: ldap, replace with shibboleth
+#Other: ganglia, perfsonar
+#Eval: ceph, openafs, stashcache, kubernetes, singularity
+
+
+
+
+#BEFORE RUNNING
+#ALL MACHINES
+#Install CENTOS 7.4 (minimal)?
+#set the rootpassword to be she same on all machines
+
+#HEAD NODE
+#Install ssh
+#run ssh-keygen
+#systemctl enable sshd
+#systemctl start sshd
+
+#COMPUTE NODES
+#install ssh-server
+#systemctl enable sshd
+#systemctl start sshd
+
+
+
+
+
+
 #Storing root password for server to copy the sshkeys
 echo "What is the root password to the servers?"
 read -s PASSWORD
@@ -7,11 +39,11 @@ read -s PASSWORD
 #get the IP address of the head node, for SSH and to create the ansible 'hosts' file
 echo -e "Enter the IP Address of the head node"
 read IP
-echo -e "all:" > ip.txt
-echo -e "\thead: " >> ip.txt
-echo -e "\t\t$IP" >> ip.txt
+echo -e "all:" > configs/hosts
+echo -e "\thead: " >> configs/hosts
+echo -e "\t\t$IP" >> configs/hosts
 sshpass -p $PASSWORD ssh-copy-id -o stricthostkeychecking=no "$IP"
-echo -e "\tcompute: " >> ip.txt
+echo -e "\tcompute: " >> configs/hosts
 
 #get the IP address of the compute nodes, for SSH and to create the ansible 'hosts' file
 while true; do
@@ -33,7 +65,7 @@ while true; do
 				IP="$STARTIP.$i"
 				echo $IP
 				sshpass -p $PASSWORD ssh-copy-id -o stricthostkeychecking=no "$IP"
-				echo -e "\t\t$IP" >> ip.txt
+				echo -e "\t\t$IP" >> configs/hosts
 			done
 			;;
 	
@@ -41,14 +73,13 @@ while true; do
 		[Nn]* )
 			echo -e "Enter the IP address of compute node"
 			read IP
-			echo \t\t$IP >> ip.txt
+			echo \t\t$IP >> configs/hosts
 			sshpass -p $PASSWORD ssh-copy-id -o stricthostkeychecking=no "$IP"
 			;;
 
 	* ) break;;
 esac
 
-
+echo -e "ssh configured & hosts file created at configs/hosts"
 
 done
-echo -e "~~~~~~~~~~~~~~~~~~~~~~~HELLO~~~~~~~~~~~~~~~~~~~~~~~~~~~"
