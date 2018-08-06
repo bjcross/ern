@@ -1,0 +1,42 @@
+---
+- hosts: compute 
+  remote_user: root
+  tasks:
+    - name: OpenHPC
+      yum: name=http://build.openhpc.community/OpenHPC:/1.3/CentOS_7/x86_64/ohpc-release-1.3-1.el7.x86_64.rpm
+
+    - name: Yum Update
+      yum: name=*,epel-release state=latest
+
+    - name: Yum Packages
+      yum:
+        name:
+          - git
+          - ohpc-base
+          - nmap 
+          - gcc
+          - vim
+          - emacs
+          - nano
+          - git
+          - autogen
+          - autoconf-ohpc
+          - automake-ohpc
+          - gzip
+          - tar
+          - unzip
+          - stress
+          - tmux
+          - zsh
+          - wget
+          - curl
+          - cmake
+          - rsync
+          - ufw
+        state: latest
+
+    - name: Clone Git Repo
+      git:
+        repo: https://github.com/agundimeda/factotum
+        dest: /root/factotum
+        force: yes

@@ -1,0 +1,41 @@
+---
+- hosts: compute
+  remote_user: root
+  tasks:
+    - name: Create Users & Groups
+      shell: sh /root/factotum/files/users.sh
+
+    - name: Install Slurm
+      yum: 
+        name:
+          - munge-ohpc
+          - munge-libs-ohpc
+          - munge-devel-ohpc 
+          - ohpc-slurm-client
+        state: latest
+
+    - name: Upload Munge key
+      copy:
+        src: /etc/munge/munge.key
+        dest: /etc/munge/
+
+    - name: Permissions Munge
+      shell: sh /root/factotum/files/mungeCompute.sh 
+
+    - name: Upload Slurm Config
+      copy:
+        src: /root/factotum/files/slurm.conf
+        dest: /etc/slurm/
+
+    - name: Upload GRES Config
+      copy:
+        src: /root/factotum/files/gres.conf
+        dest: /etc/slurm/
+    
+    - name: Upload CGROUP Config
+      copy:
+        src: /root/factotum/files/cgroup.conf
+        dest: /etc/slurm/
+
+    - name: Permissions & Files
+      shell: sh /root/factotum/files/slurmCompute.sh
