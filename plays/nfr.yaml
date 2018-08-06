@@ -3,60 +3,59 @@
   remote_user: root
   tasks:
     - name: Update
-        yum: name=* state=latest
+      yum: name=* state=latest
     
     - name: Software Groups
-        yum: 
-          name: "@Hardware Monitoring Utilites",
-                "@Performance Tools",
-                "@Development Tools",
-                "@Network File System Client",
-                "@Console Internet Tools",
-                "@Networking Tools",  
-                "@System Administration Tools",
-                "@System Management",
-                "@Compatibility Libraries",
-                "@Platform Development" 
-          state: present 
+      yum:
+        name:
+          - "'@Infrastructure Server'"
+          - "'@Hardware Monitoring Utilites'"
+          - "'@Performance Tools'"
+          - "'@Development Tools'"
+          - "'@Network File System Client'"
+          - "'@Console Internet Tools'"
+          - "'@Networking Tools'"
+          - "'@System Administration Tools'"
+          - "'@System Management'"
+          - "'@Compatibility Libraries'"
+          - "'@Platform Development'"
+        state: present
    
     - name: Copy Hosts Files
         //TODO
 
     - name: OpenHPC
-        yum: name=http://build.openhpc.community/OpenHPC:/1.3/CentOS_7/x86_64/ohpc-release-1.3-1.el7.x86_64.rpm
-        yum: name=* state=latest
-        yum:
-        replace:
-          path: /etc/selinux/config
-          regexp: '\SELINUX=enforcing'
-          replace: 'SELINUX=permissive'
+      yum: name=*,http://build.openhpc.community/OpenHPC:/1.3/CentOS_7/x86_64/ohpc-release-1.3-1.el7.x86_64.rpm state=latest
+      
+    - name: SELinux Permissions
+      shell: sed -i s/SELINUX=enforcing/SELINUX=permissive/ /etc/selinux/config && setenforce 0
 
     - name: More Packages
-        yum:
-          name: nmap, iptraf-ng, iperf3, hdparm, msr-tools, mlocate, trafshow, yum-utils
-          state: latest
+      yum:
+        name: nmap, iptraf-ng, iperf3, hdparm, msr-tools, mlocate, trafshow, yum-utils
+        state: latest
 
     - name: Firewall
         //TODO
 
     - name: IP Forward
-        shell: echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf && sysctl -p /etc/sysctl.conf
+      shell: echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf && sysctl -p /etc/sysctl.conf
 
     - name: LDAP
-        yum:
-          name: sssd, openldap-clients
-          state: latest
-        shell: authconfig --updateall --enableldap --enableldapauth --ldapserver=ldap://ern.hpc.rutgers.edu:389 --ldapbasedn=dc=ufp,dc=hpc,dc=rutgers,dc=edu --enableldaptls --enableldapstarttls
-        copy:
-          src: https://raw.githubusercontent.com/rutgers-oarc/ern-poc/master/fedconfig/ern_hpc_rutgers_edu_interm.cer
-          dest: /etc/openldap/cacerts
-        shell: cacertdir_rehash /etc/openldap/cacerts/
-        service: name=sssd state=started enabled=yes
+      yum:
+        name: sssd, openldap-clients
+        state: latest
+      shell: authconfig --updateall --enableldap --enableldapauth --ldapserver=ldap://ern.hpc.rutgers.edu:389 --ldapbasedn=dc=ufp,dc=hpc,dc=rutgers,dc=edu --enableldaptls --enableldapstarttls
+      copy:
+        src: https://raw.githubusercontent.com/rutgers-oarc/ern-poc/master/fedconfig/ern_hpc_rutgers_edu_interm.cer
+        dest: /etc/openldap/cacerts
+      shell: cacertdir_rehash /etc/openldap/cacerts/
+      service: name=sssd state=started enabled=yes
 
     - name: Create Home Directories
-        yum: name=oddjob-mkhomedir state=latest
-        service: name=oddjobd state=started enabled=yes
-        shell: authconfig --enablemkhomedir --update
+      yum: name=oddjob-mkhomedir state=latest
+      service: name=oddjobd state=started enabled=yes
+      shell: authconfig --enablemkhomedir --update
 
     - name: Slurm & Munge
         //TODO
@@ -68,38 +67,38 @@
         //TODO
 
     - name: PerfSonar
-        yum: name=http://software.internet2.edu/rpms/el7/x86_64/main/RPMS/perfSONAR-repo-0.8-1.noarch.rpm
-        yum: name=perfSibar-repo-staging, perfsonar-testpoint, perfsonar-toolkit-servicewatcher, perfsonar-toolkit-sysctl, perfsonar-toolkit-systemenv-testpoint state=latest
-        copy:
-          src: /usr/share/doc/pscheduler/limit-examples/identifier-ip-cidr-list-url
-          dest: /etc/pscheduler/limits.conf
-        file:
-          path: /etc/pscheduler/limits.conf
-          owner: root
-          group: pscheduler
-          mode: 0644
-        shell: pscheduler validate-limits
-        copy:
+      yum: name=http://software.internet2.edu/rpms/el7/x86_64/main/RPMS/perfSONAR-repo-0.8-1.noarch.rpm
+      yum: name=perfSibar-repo-staging, perfsonar-testpoint, perfsonar-toolkit-servicewatcher, perfsonar-toolkit-sysctl, perfsonar-toolkit-systemenv-testpoint state=latest
+      copy:
+        src: /usr/share/doc/pscheduler/limit-examples/identifier-ip-cidr-list-url
+        dest: /etc/pscheduler/limits.conf
+      file:
+        path: /etc/pscheduler/limits.conf
+        owner: root
+        group: pscheduler
+        mode: 0644
+      shell: pscheduler validate-limits
+      copy:
           src: https://raw.githubusercontent.com/rutgers-oarc/ern-poc/master/fedconfig/perfsonar.xml
           dest: /etc/firewalld/services/
-        shell: firewall-cmd --reload
-        shell: psconfig remote add --configure-archives "https://ern.hpc.rutgers.edu/psconfig/ernmesh.json"
+      shell: firewall-cmd --reload
+      shell: psconfig remote add --configure-archives "https://ern.hpc.rutgers.edu/psconfig/ernmesh.json"
         #SERVER REBOOT
 
     - name: Ganglia
-        yum: name=ganglia-gmond-ohpc state=latest
-        copy:
-          src: https://raw.githubusercontent.com/rutgers-oarc/ern-poc/master/fedconfig/gmond.conf
-          dest: /etc/ganglia
-        service: name=gmond state=started enabled=yes
+      yum: name=ganglia-gmond-ohpc state=latest
+      copy:
+        src: https://raw.githubusercontent.com/rutgers-oarc/ern-poc/master/fedconfig/gmond.conf
+        dest: /etc/ganglia
+      service: name=gmond state=started enabled=yes
 
     - name: Firewall Settings
         //TODO
 
     - name: BOINC
-        yum: name=boinc-client, boinc-client-doc state=latest
+      yum: name=boinc-client, boinc-client-doc state=latest
  
 - hosts: Compute
   remote_user: root
   tasks:
-    - name: Disable Firewall?
+    - name: Disable Firewall
