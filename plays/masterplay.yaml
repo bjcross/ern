@@ -2,9 +2,12 @@
 - hosts: All
   remote_user: root
   tasks:
-    - name: Update
-      yum: name=* state=latest
-    
+
+#update all machines and install git
+    - name: Update, and install git
+      yum: name=*,git state=latest
+   
+#install tools/utilities 
     - name: Software Groups
       yum:
         name:
@@ -20,21 +23,37 @@
           - "'@Compatibility Libraries'"
           - "'@Platform Development'"
         state: present
-   
-    - name: Copy Hosts Files
-        //TODO
 
+#copy github repo to all nodes
+    - name: Copy github directory to every nodes' root directory
+      copy:
+        src: /root/ern
+        dest: /root/
+#copy host files to their correct location
+    - name: Copy Hosts Files (hosts, hosts.allow, hosts.deny -----> /etc)
+      copy:
+        src: /root/ern/configs/hosts
+        dest: /etc/
+    - name: Copy Hosts Files (hosts, hosts.allow, hosts.deny -----> /etc)
+      copy:
+        src: /root/ern/configs/hosts.allow
+        dest: /etc/
+    - name: Copy Hosts Files (hosts, hosts.allow, hosts.deny -----> /etc)
+      copy:
+        src: /root/ern/configs/hosts.deny
+        dest: /etc/
+
+#install programs to be used
     - name: OpenHPC
       yum: name=*,http://build.openhpc.community/OpenHPC:/1.3/CentOS_7/x86_64/ohpc-release-1.3-1.el7.x86_64.rpm state=latest
-      
     - name: SELinux Permissions
       shell: sed -i s/SELINUX=enforcing/SELINUX=permissive/ /etc/selinux/config && setenforce 0
-
     - name: More Packages
       yum:
         name: nmap, iptraf-ng, iperf3, hdparm, msr-tools, mlocate, trafshow, yum-utils
         state: latest
 
+#open up ports in firewall
     - name: Firewall
         //TODO
 
