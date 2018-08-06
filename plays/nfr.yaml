@@ -6,19 +6,20 @@
       yum: name=* state=latest
     
     - name: Software Groups
-      yum: name={{item}} state=present
-      with_items:
-        - "'@Infrastructure Server'"
-        - "'@Hardware Monitoring Utilites'"
-        - "'@Performance Tools'"
-        - "'@Development Tools'"
-        - "'@Network File System Client'"
-        - "'@Console Internet Tools'"
-        - "'@Networking Tools'"
-        - "'@System Administration Tools'"
-        - "'@System Management'"
-        - "'@Compatibility Libraries'"
-        - "'@Platform Development'"
+      yum:
+        name:
+          - "'@Infrastructure Server'"
+          - "'@Hardware Monitoring Utilites'"
+          - "'@Performance Tools'"
+          - "'@Development Tools'"
+          - "'@Network File System Client'"
+          - "'@Console Internet Tools'"
+          - "'@Networking Tools'"
+          - "'@System Administration Tools'"
+          - "'@System Management'"
+          - "'@Compatibility Libraries'"
+          - "'@Platform Development'"
+        state: present
    
     - name: Copy Hosts Files
         //TODO
